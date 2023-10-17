@@ -56,6 +56,58 @@ public class MealsRestController {
                 linkTo(methodOn(MealsRestController.class).getMeals()).withSelfRel());
     }
 
+    @Operation(summary = "Get the largest meal", description = "Get the largest meal")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the largest meal",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Meal.class))}),
+            @ApiResponse(responseCode = "404", description = "Could not find largest meal", content = @Content)})
+    @GetMapping("/rest/meals/largest")
+    ResponseEntity<?> getLargestMeal() {
+        Collection<Meal> meals = mealsRepository.getAllMeal();
+
+        List<EntityModel<Meal>> mealEntityModels = new ArrayList<>();
+        for (Meal m : meals) {
+            EntityModel<Meal> em = mealToEntityModel(m.getId(), m);
+            mealEntityModels.add(em);
+        }
+        Meal largestMeal = mealEntityModels.get(0).getContent();
+        for (EntityModel<Meal> m : mealEntityModels) {
+            int oldLargest = largestMeal.getKcal();
+            int newlargest = m.getContent().getKcal();
+            if(newlargest>oldLargest){
+                largestMeal = m.getContent();
+            }
+        }
+        EntityModel<Meal> cheapestMealEntityModel = mealToEntityModel(largestMeal.getId(), largestMeal);
+        return ResponseEntity.ok(cheapestMealEntityModel);
+    }
+
+    @Operation(summary = "Get the cheapest meal", description = "Get the cheapest meal")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the cheapest meal",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Meal.class))}),
+            @ApiResponse(responseCode = "404", description = "Could not find cheapest meal", content = @Content)})
+    @GetMapping("/rest/meals/cheapest")
+    ResponseEntity<?> getCheapestMeal() {
+        Collection<Meal> meals = mealsRepository.getAllMeal();
+
+        List<EntityModel<Meal>> mealEntityModels = new ArrayList<>();
+        for (Meal m : meals) {
+            EntityModel<Meal> em = mealToEntityModel(m.getId(), m);
+            mealEntityModels.add(em);
+        }
+        Meal cheapestMeal = mealEntityModels.get(0).getContent();
+        for (EntityModel<Meal> m : mealEntityModels) {
+            Double oldPrice = cheapestMeal.getPrice();
+            Double newPrice = m.getContent().getPrice();
+            if(newPrice<oldPrice){
+                cheapestMeal = m.getContent();
+            }
+        }
+        EntityModel<Meal> cheapestMealEntityModel = mealToEntityModel(cheapestMeal.getId(), cheapestMeal);
+        return ResponseEntity.ok(cheapestMealEntityModel);
+    }
+
     private EntityModel<Meal> mealToEntityModel(String id, Meal meal) {
         return EntityModel.of(meal,
                 linkTo(methodOn(MealsRestController.class).getMealById(id)).withSelfRel(),
