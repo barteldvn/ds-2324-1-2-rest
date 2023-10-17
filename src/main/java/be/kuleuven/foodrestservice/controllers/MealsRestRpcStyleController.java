@@ -62,4 +62,28 @@ public class MealsRestRpcStyleController {
         if (largestMeal == null)  throw new MealNotFoundException();
         return largestMeal;
     }
+
+    @DeleteMapping("/restrpc/meals/delete/{id}")
+    public String deleteMeal(@PathVariable String id) {
+        if (mealsRepository.getAllMeal().remove(getMealById(id))) return "200";
+        else return "404";
+    }
+
+    @PutMapping("/restrpc/meals/update/{id}")
+    public String updateMeal(@RequestBody Meal meal, @RequestParam String id) {
+        if (mealsRepository.getAllMeal().remove(getMealById(id))) {
+            mealsRepository.getAllMeal().add(meal);
+            return "200";
+        }
+        else return "404";
+    }
+
+    @PostMapping("/restrpc/meals/new/")
+    public String newMeal(@RequestBody Meal meal) {
+        mealsRepository.getAllMeal().add(meal);
+        return "200";
+    }
+
+
+
 }
