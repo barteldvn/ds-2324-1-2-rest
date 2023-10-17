@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -30,5 +31,35 @@ public class MealsRestRpcStyleController {
     @GetMapping("/restrpc/meals")
     Collection<Meal> getMeals() {
         return mealsRepository.getAllMeal();
+    }
+
+    @GetMapping("/restrpc/cheapestmeal")
+    public Meal getCheapestMeal() {
+        Double cheapestPrice = 100000.00;
+        Meal cheapestMeal = null;
+        Collection<Meal> meals = getMeals();
+        for (Meal meal : getMeals()){
+
+            if (meal.getPrice() < cheapestPrice ){
+                cheapestPrice = meal.getPrice();
+                cheapestMeal = meal;
+            }
+        }
+        if (cheapestMeal == null)  throw new MealNotFoundException();
+        return cheapestMeal;
+    }
+
+    @GetMapping("/restrpc/largestmeal")
+    public Meal getLargestMeal() {
+        int largestKcal = 0;
+        Meal largestMeal = null;
+        for (Meal meal : getMeals()){
+            if (meal.getKcal() > largestKcal ){
+                largestKcal = meal.getKcal();
+                largestMeal = meal;
+            }
+        }
+        if (largestMeal == null)  throw new MealNotFoundException();
+        return largestMeal;
     }
 }
